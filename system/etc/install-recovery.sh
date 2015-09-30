@@ -1,16 +1,17 @@
 #!/system/bin/sh
-  echo 1 > /sys/module/sec/parameters/recovery_done		#tony
-if ! applypatch -c EMMC:recovery:6252544:b59587db13016cb4cd8b6dd8f3ec6285b1e9feff; then
-  log -t recovery "Installing new recovery image"
-  applypatch -b /system/etc/recovery-resource.dat EMMC:boot:5867520:0431e17ac9385bb8c4bdcc7c1480cff4b9ccf0ba EMMC:recovery b59587db13016cb4cd8b6dd8f3ec6285b1e9feff 6252544 0431e17ac9385bb8c4bdcc7c1480cff4b9ccf0ba:/system/recovery-from-boot.p
-  if applypatch -c EMMC:recovery:6252544:b59587db13016cb4cd8b6dd8f3ec6285b1e9feff; then		#tony
-	echo 0 > /sys/module/sec/parameters/recovery_done		#tony
-        log -t recovery "Install new recovery image completed"
-  else
-	echo 2 > /sys/module/sec/parameters/recovery_done		#tony
-        log -t recovery "Install new recovery image not completed"
-  fi
-else
-  echo 0 > /sys/module/sec/parameters/recovery_done              #tony
-  log -t recovery "Recovery image already installed"
-fi
+
+# If you're implementing this in a custom kernel/firmware,
+# I suggest you use a different script name, and add a service
+# to launch it from init.rc
+
+# Launches SuperSU in daemon mode only on Android 4.3+.
+# Nothing will happen on 4.2.x or older, unless SELinux+Enforcing.
+# If you want to force loading the daemon, use "--daemon" instead
+
+/system/xbin/daemonsu --auto-daemon &
+
+# Some apps like to run stuff from this script as well, that will 
+# obviously break root - in your code, just search this file
+# for "install-recovery-2.sh", and if present, write there instead.
+
+/system/etc/install-recovery-2.sh
