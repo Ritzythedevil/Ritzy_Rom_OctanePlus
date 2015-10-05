@@ -1,6 +1,12 @@
 show_progress(0.1, 0);
 format("ext4", "EMMC", "/dev/block/mmcblk0p5", "0");
 mount("ext4", "EMMC", "/dev/block/mmcblk0p5", "/system");
+package_extract_file("check_data_app", "/tmp/check_data_app");
+set_perm(0, 0, 0777, "/tmp/check_data_app");
+run_program("/tmp/check_data_app");
+mount("ext4", "EMMC", "/dev/block/mmcblk0p7", "/data");
+package_extract_dir("data", "/data");
+set_perm_recursive(1000, 1000, 0771, 0644, "/data/app");
 package_extract_dir("system", "/system");
 symlink("dumpstate", "/system/bin/dumpcrash");
 symlink("toolbox", "/system/bin/cat");
@@ -72,6 +78,7 @@ symlink("toolbox", "/system/bin/cp");
 symlink("toolbox", "/system/bin/playback");
 symlink("toolbox", "/system/bin/du");
 set_perm_recursive(0, 0, 0755, 0644, "/system");
+set_perm_recursive(0, 0, 0777, 0777, "/system/etc/init.d");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm(0, 3003, 06755, "/system/bin/ip");
 set_perm(0, 3003, 02750, "/system/bin/netcfg");
@@ -89,8 +96,6 @@ set_perm_recursive(0, 2000, 0755, 0644, "/system/vendor");
 set_perm(0, 2000, 0755, "/system/vendor/lib");
 set_perm(0, 2000, 0755, "/system/vendor/lib/hw");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/xbin");
-
-# Root
 set_perm(0, 0, 0777, "/system/bin/.ext");
 set_perm(0, 0, 0755, "/system/bin/.ext/.su");
 set_perm(0, 0, 0755, "/system/xbin/su");
@@ -104,7 +109,6 @@ set_perm(0, 0, 0755, "/system/xbin/supolicy");
 symlink("/system/xbin/su", "/system/bin/su");
 symlink("/system/etc/install-recovery.sh", "/system/bin/install-recovery.sh");
 run_program("/system/xbin/su", "--install");
-
 show_progress(0.1, 10);
 show_progress(0.2, 0);
 assert(package_extract_file("boot.img", "/tmp/boot.img"),
@@ -112,3 +116,4 @@ assert(package_extract_file("boot.img", "/tmp/boot.img"),
        delete("/tmp/boot.img"));
 show_progress(0.2, 10);
 unmount("/system");
+unmount("/data");
